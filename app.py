@@ -1,12 +1,11 @@
 import streamlit as st
 import pickle
-import nltk
+
 from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
-nltk.download('punkt')
-nltk.download('stopwords')
+
 
 def text_transform(text):
 
@@ -45,14 +44,3 @@ if st.button('Predict'):
         st.error("Spam")
     else:
         st.success("Not Spam")
-    # pre-process
-    transformed_sms = text_transform(input_sms)
-    # vectorize
-    vector = tfidf.transform([transformed_sms])
-    # predict
-    result = model.predict(vector)[0]
-    # display
-    if result == 1:
-        st.display("spam")
-    else:
-        st.display("Not Spam")
