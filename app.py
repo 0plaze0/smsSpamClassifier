@@ -1,25 +1,29 @@
 import streamlit as st
 import pickle
+import nltk
 
-from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
+# download required nltk data
 @st.cache_resource
-def download_nltk():
-    import nltk
-    nltk.download('punkt')
-    nltk.download('stopwords')
+def load_nltk():
+    nltk.download("stopwords")
 
-download_nltk()
+load_nltk()
 
+# preprocessing function
 def text_transform(text):
-
     stop_words = set(stopwords.words('english'))
-    trans_text = word_tokenize(text.lower())
 
-    trans_text = [x for x in trans_text if not x in stop_words] # remove stopword
-    trans_text = [x for x in trans_text if x.isalnum()]# remove punctations and special character
+    # simple tokenization (avoids punkt dependency)
+    trans_text = text.lower().split()
+
+    # remove stopwords
+    trans_text = [x for x in trans_text if x not in stop_words]
+
+    # remove punctuation / special characters
+    trans_text = [x for x in trans_text if x.isalnum()]
 
     # stemming
     stemming = PorterStemmer()
@@ -28,25 +32,27 @@ def text_transform(text):
     return " ".join(trans_text)
 
 
-tfidf = pickle.load(open('vectorizer.pkl','rb'))
-model = pickle.load(open('model.pkl','rb'))
+# load model and vectorizer
+tfidf = pickle.load(open("vectorizer.pkl", "rb"))
+model = pickle.load(open("model.pkl", "rb"))
 
-st.title('Email Spam Classifier')
+# UI
+st.title("SMS Spam Classifier")
 
 input_sms = st.text_area("Enter your message")
 
-if st.button('Predict'):
-    # pre-process
-    transformed_sms = text_transform(input_sms)
+if st.button("Predict"):
+    if input_sms.strip() != "":
+        transformed_sms = text_transform(input_sms)
 
-    # vectorize
-    vector = tfidf.transform([transformed_sms])
+        # vectorize
+        vector = tfidf.transform([transformed_sms])
 
-    # predict
-    result = model.predict(vector)[0]
+        # predict
+        result = model.predict(vector)[0]
 
-    # display
-    if result == 1:
-        st.error("Spam")
-    else:
-        st.success("Not Spam")
+        # display result
+        if result == 1:
+            st.error("Spam")
+        else:
+            st.success("Not Spam")
