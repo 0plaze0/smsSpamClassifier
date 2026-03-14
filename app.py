@@ -5,7 +5,13 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 
+@st.cache_resource
+def download_nltk():
+    import nltk
+    nltk.download('punkt')
+    nltk.download('stopwords')
 
+download_nltk()
 
 def text_transform(text):
 
